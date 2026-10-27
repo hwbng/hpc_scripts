@@ -4,7 +4,7 @@ hpc=""
 remote_dir=""
 extras=""
 
-usage="Usage: $0 -c <hpc> -r <remote_dir> [-e <comma-separated extra files, e.g. CHGCAR,WAVECAR,vasprun.xml>]"
+usage="Usage: $0 -c <hpc> -r <remote_dir> [-e <comma-separated extra files, e.g. CHGCAR,WAVECAR,vasprun.xml>]. Put <remote_dir> in quotes to use wildcards."
 
 while getopts "hc:r:e:" opt; do
   case $opt in
@@ -17,7 +17,7 @@ $usage
   -h  show this help and exit
 Runs: rsync -hazvP into ./ including only dirs plus these patterns:
   *OUTCAR* *OSZICAR* *XDATCAR* *INCAR* *POSCAR* *CONTCAR* *KPOINTS*
-  *.json* *.py* *.ipynb* *.yaml* slurm*  (+ extras), excluding everything else
+  *.json* *.yaml* slurm*  (+ extras), excluding everything else
 EOT
     exit 0
     ;;
@@ -25,7 +25,7 @@ EOT
   r) remote_dir="$OPTARG" ;;
   e) extras="$OPTARG" ;;
   *)
-    echo "$usage"
+    echo "$usage" >&2
     exit 1
     ;;
   esac
@@ -34,7 +34,8 @@ done
 shift $((OPTIND - 1))
 
 if [[ -z "$hpc" || -z "$remote_dir" ]]; then
-  echo "$usage"
+  echo "Error: Missing required arguments." >&2
+  echo "$usage" >&2
   exit 1
 fi
 

@@ -3,11 +3,13 @@
 hpc=""
 remote_files=""
 
+usage="Usage: $0 -c <hpc> -r <remote_files>"
+
 while getopts "hc:r:" opt; do
   case $opt in
   h)
     cat <<EOT
-Usage: $0 -c <hpc> -r <remote_files>
+$usage
   -c  ssh host / alias of the HPC
   -r  remote files (space-separated, remote globs ok); may be followed by more words
   -h  show this help and exit
@@ -25,7 +27,7 @@ EOT
     done
     ;;
   *)
-    echo "Usage: $0 -c <hpc> -r <remote_files>"
+    echo "$usage" >&2
     exit 1
     ;;
   esac
@@ -34,7 +36,8 @@ done
 shift $((OPTIND - 1))
 
 if [[ -z "$hpc" || -z "$remote_files" ]]; then
-  echo "Usage: $0 -c <hpc> -r <remote_files>"
+  echo "Error: Missing required arguments." >&2
+  echo "$usage" >&2
   exit 1
 fi
 
