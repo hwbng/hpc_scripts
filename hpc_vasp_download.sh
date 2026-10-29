@@ -4,7 +4,7 @@ hpc=""
 remote_dir=""
 extras=""
 
-usage="Usage: $0 -c <hpc> -r <remote_dir> [-e <comma-separated extra files, e.g. CHGCAR,WAVECAR,vasprun.xml>]. Put <remote_dir> in quotes to use wildcards."
+usage="Usage: $0 -c <hpc> -r <remote_dir> [-e <extra files, comma- or space-separated, e.g. CHGCAR,WAVECAR or CHGCAR WAVECAR>]. Put <remote_dir> in quotes to use wildcards."
 
 while getopts "hc:r:e:" opt; do
   case $opt in
@@ -13,7 +13,7 @@ while getopts "hc:r:e:" opt; do
 $usage
   -c  ssh host / alias of the HPC
   -r  remote directory to fetch from
-  -e  extra files to include (comma-separated name prefixes, matched as NAME*)
+  -e  extra files to include (comma- or space-separated, repeatable, matched as *NAME*)
   -h  show this help and exit
 Runs: rsync -hazvP into ./ including only dirs plus these patterns:
   *OUTCAR* *OSZICAR* *XDATCAR* *INCAR* *POSCAR* *CONTCAR* *KPOINTS*
@@ -23,7 +23,7 @@ EOT
     ;;
   c) hpc="$OPTARG" ;;
   r) remote_dir="$OPTARG" ;;
-  e) extras="$OPTARG" ;;
+  e) extras+="$OPTARG," ;;
   *)
     echo "$usage" >&2
     exit 1
@@ -32,6 +32,9 @@ EOT
 done
 
 shift $((OPTIND - 1))
+
+# words after the last option (e.g. -e .jpg .yaml) are more extras
+for a in "$@"; do extras+="$a,"; done
 
 if [[ -z "$hpc" || -z "$remote_dir" ]]; then
   echo "Error: Missing required arguments." >&2
